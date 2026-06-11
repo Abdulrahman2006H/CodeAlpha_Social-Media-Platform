@@ -1,0 +1,89 @@
+<div class="register-page">
+  <div class="register-card">
+
+    <div class="register-form">
+      <div class="brand">
+        <div class="brand-icon">C</div>
+        <div>
+          <span>Connectly</span>
+          <small>Create your social space</small>
+        </div>
+      </div>
+
+      <div class="form-head">
+        <span class="register-badge">Start now ✨</span>
+        <h1>Create account</h1>
+        <p class="subtitle">Join us, share moments, and build your network.</p>
+      </div>
+
+      <div class="form-grid two-columns">
+        <input
+          type="text"
+          [(ngModel)]="fullName"
+          placeholder="Full name"
+        />
+
+        <input
+          type="text"
+          [(ngModel)]="userName"
+          placeholder="Username"
+        />
+      </div>
+
+      <input
+        type="email"
+        [(ngModel)]="email"
+        placeholder="Email address"
+      />
+
+      <input
+        type="password"
+        [(ngModel)]="password"
+        placeholder="Password"
+      />
+
+      <textarea
+        [(ngModel)]="bio"
+        placeholder="Bio"
+      ></textarea>
+
+      <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+      <button
+        type="button"
+        class="register-btn"
+        [disabled]="isLoading"
+        (click)="register()">
+        {{ isLoading ? 'Creating...' : 'Create account' }}
+      </button>
+
+      <p class="login-link">
+        Already have an account?
+        <a routerLink="/login">Login</a>
+      </p>
+    </div>
+
+    <div class="register-visual">
+      <div class="glow glow-one"></div>
+      <div class="glow glow-two"></div>
+      <div class="glow glow-three"></div>
+
+      <div class="visual-card mini-card-one">
+        <b>+7</b>
+        <span>New posts</span>
+      </div>
+
+      <div class="visual-card mini-card-two">
+        <b>40</b>
+        <span>Followers</span>
+      </div>
+
+      <div class="visual-content">
+        <span>Connectly community</span>
+        <h2>Join.<br />Share. Grow.</h2>
+        <p>Create posts, follow friends, and discover what people share every day.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
