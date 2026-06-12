@@ -235,12 +235,12 @@ Through this project, I practiced:
 
 ## Author
 
-**Abdulrahman2006H**
+**Abdulrahman Hossam**
 
-GitHub: [Add your GitHub profile link here]
+GitHub: [https://github.com/Abdulrahman2006H]
 
 ---
 
 ## Repository Link
 
-[Add your repository link here]
+[https://github.com/Abdulrahman2006H/CodeAlpha_Social-Media-Platform]
