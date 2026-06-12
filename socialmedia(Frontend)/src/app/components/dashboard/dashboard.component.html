@@ -1,0 +1,304 @@
+<div class="cozmeet-page">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">C</div>
+      <div class="logo">Connectly</div>
+    </div>
+
+    <div class="search-box">
+      <span>⌕</span>
+      <input type="text" placeholder="Search people, posts, hashtags..." />
+    </div>
+
+    <nav class="top-icons">
+      <button type="button" class="top-active">
+        <span>🏠</span>
+        <span>Home</span>
+      </button>
+      <button type="button" class="nav-pill hide-md"># Explore</button>
+      <button type="button" class="nav-pill hide-md">🔔 Notifications</button>
+      <button type="button" class="nav-pill hide-md">💬 Messages</button>
+    </nav>
+
+    <div class="account-mini profile-menu-area">
+      <button type="button" class="account-btn" (click)="toggleProfileMenu()">
+        <div class="mini-avatar">
+          {{ currentUser?.fullName?.charAt(0) || 'U' }}
+        </div>
+
+        <span>{{ currentUser?.fullName || 'User' }}</span>
+        <span class="chevron">⌄</span>
+      </button>
+
+      <div class="profile-dropdown" *ngIf="showProfileMenu">
+        <button type="button" (click)="openMyProfile()">👤 Open My Profile</button>
+        <button type="button" (click)="logout()">🚪 Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="left-sidebar">
+  <nav class="left-menu">
+    <button class="active">🏠 <span>Home</span></button>
+    <button>🔎 <span>Explore</span></button>
+    <button>🔔 <span>Notifications</span></button>
+    <button>💬 <span>Messages</span></button>
+    <button>🔖 <span>Bookmarks</span></button>
+    <button>⚙️ <span>Settings</span></button>
+  </nav>
+
+  <div class="upgrade-card">
+    <h4>Connectly Pro ✨</h4>
+    <p>Unlock more features and customize your experience.</p>
+    <button type="button">Upgrade Now</button>
+  </div>
+</aside>
+    <main class="feed-area">
+      <section class="welcome-card card">
+        <div class="welcome-copy">
+          <span class="wave">👋</span>
+          <div>
+            <h2>Welcome back, {{ currentUser?.fullName || 'User' }}!</h2>
+            <p>Share your thoughts and discover what your community is posting today.</p>
+          </div>
+        </div>
+
+        <div class="quick-stats">
+          <div class="stat-chip">
+            <span class="stat-icon blue">✎</span>
+            <div>
+              <b>{{ posts.length }}</b>
+              <small>Posts</small>
+            </div>
+          </div>
+
+          <div class="stat-chip">
+            <span class="stat-icon green">👥</span>
+            <div>
+              <b>{{ currentUser?.followersCount || 0 }}</b>
+              <small>Followers</small>
+            </div>
+          </div>
+
+          <div class="stat-chip">
+            <span class="stat-icon orange">👤</span>
+            <div>
+              <b>{{ currentUser?.followingCount || 0 }}</b>
+              <small>Following</small>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="composer card">
+        <div class="composer-row">
+          <div class="small-avatar">
+            {{ currentUser?.fullName?.charAt(0) || 'U' }}
+          </div>
+
+          <input
+            [(ngModel)]="postText"
+            placeholder="Share something..."
+            (keyup.enter)="createPost()"
+          />
+
+          <button
+            type="button"
+            class="composer-send"
+            [disabled]="!postText.trim() && !selectedImage"
+            (click)="createPost()">
+            ➜
+          </button>
+        </div>
+
+        <div class="image-preview" *ngIf="imagePreview">
+          <img [src]="imagePreview" alt="preview" />
+          <button type="button" (click)="selectedImage = null; imagePreview = null">×</button>
+        </div>
+
+        <div class="composer-tools">
+          <label class="upload-btn">
+            🖼 Image
+            <input
+              type="file"
+              accept="image/*"
+              hidden
+              (change)="onImageSelected($event)"
+            />
+          </label>
+
+          <button type="button">😊 Feeling</button>
+          <button type="button"># Tag</button>
+          <button type="button">📊 Poll</button>
+        </div>
+      </section>
+
+      <div class="feed-sort">
+        Sort by <button type="button">{{ sortBy }} ▾</button>
+      </div>
+
+      <div class="loading-box card" *ngIf="loadingPosts">
+        Loading posts...
+      </div>
+
+      <article
+        class="post-card card"
+        *ngFor="let post of posts"
+        [class.my-post-card]="post.user.id === currentUser?.id">
+
+        <div class="post-top">
+          <div class="avatar">
+            {{ getUserInitial(post.user.fullName) }}
+          </div>
+
+          <div class="post-author">
+            <div class="author-line">
+              <h3>{{ post.user.id === currentUser?.id ? 'YOU' : post.user.fullName }}</h3>
+              <span class="owner-badge" *ngIf="post.user.id === currentUser?.id">Your post</span>
+            </div>
+            <p>&#64;{{ post.user.userName }}</p>
+          </div>
+
+          <button
+            type="button"
+            class="author-follow-btn"
+            *ngIf="post.user.id !== currentUserId"
+            [class.following]="post.user.isFollowing"
+            (click)="followPostAuthor(post)">
+            {{ post.user.isFollowing ? 'Following' : 'Follow' }}
+          </button>
+
+          <div class="post-menu-wrapper" *ngIf="post.user.id === currentUser?.id">
+            <button type="button" class="post-menu" (click)="togglePostMenu(post)">⋮</button>
+
+            <ul class="post-dropdown" *ngIf="post.showMenu">
+              <li (click)="editPost(post)">✏️ Edit</li>
+              <li class="delete" (click)="deletePost(post)">🗑️ Delete</li>
+            </ul>
+          </div>
+        </div>
+
+        <p class="caption">{{ post.content }}</p>
+
+        <img
+          *ngIf="post.imageUrl"
+          [src]="post.imageUrl"
+          class="post-real-image"
+          alt="post image" />
+
+        <div class="stats">
+<button
+  type="button"
+  class="like-btn"
+  [class.liked]="post.isLikedByCurrentUser"
+  [disabled]="post.likeLoading"
+  (click)="toggleLike(post)">
+  {{ post.isLikedByCurrentUser ? '❤️' : '🤍' }} {{ post.likesCount }}
+</button>
+          <button type="button" (click)="toggleComments(post)">💬 {{ post.commentsCount }}</button>
+          <button type="button" class="share-btn">↗ Share</button>
+        </div>
+
+        <div class="comments-box" *ngIf="post.showComments">
+          <div class="comment" *ngFor="let comment of post.comments">
+            <div class="comment-avatar">
+              {{ getUserInitial(comment.user.fullName) }}
+            </div>
+
+            <div class="comment-body">
+              <strong>{{ comment.user.fullName }}</strong>
+              <p>{{ comment.text }}</p>
+            </div>
+          </div>
+
+          <div class="empty-comments" *ngIf="post.comments.length === 0">
+            No comments yet.
+          </div>
+
+          <div class="comment-form">
+            <input
+              type="text"
+              [(ngModel)]="post.newComment"
+              placeholder="Write your comment..."
+              (keyup.enter)="addComment(post)" />
+
+            <button
+              type="button"
+              [disabled]="!post.newComment?.trim()"
+              (click)="addComment(post)">
+              Send
+            </button>
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <aside class="right-sidebar">
+      <section class="card activity-card">
+        <div class="card-head">
+          <h4>Activity</h4>
+          <a>See all</a>
+        </div>
+
+        <div class="activity empty-activity" *ngIf="activities.length === 0">
+          <div class="activity-avatar">✨</div>
+          <div>
+            <b>No activity yet</b>
+            <p>Interactions will appear here.</p>
+          </div>
+        </div>
+
+        <div class="activity" *ngFor="let item of activities">
+          <div class="activity-avatar">{{ item.image }}</div>
+
+          <div>
+            <b>{{ item.name }}</b>
+            <p>{{ item.text }}</p>
+          </div>
+
+          <button type="button" *ngIf="item.action">{{ item.action }}</button>
+          <small class="activity-time" *ngIf="item.time">{{ item.time }}</small>
+        </div>
+      </section>
+
+      <section class="card suggested-card">
+        <div class="card-head">
+          <h4>Suggested for you</h4>
+          <a>See all</a>
+        </div>
+
+        <div class="suggestion" *ngFor="let user of suggestions">
+          <div class="suggest-avatar">{{ user.avatar }}</div>
+
+          <div>
+            <b>{{ user.name }}</b>
+            <p>{{ user.subtitle }}</p>
+          </div>
+
+          <button
+            type="button"
+            [class.followed]="user.following"
+            (click)="toggleSuggestion(user)">
+            {{ user.following ? 'Following' : 'Follow' }}
+          </button>
+        </div>
+      </section>
+
+      <section class="card trending-card">
+        <div class="card-head">
+          <h4>Trending</h4>
+          <a>Today</a>
+        </div>
+
+        <div class="trend" *ngFor="let topic of trendingTopics">
+          <div>
+            <b># {{ topic.name }}</b>
+            <p>{{ topic.posts }} posts</p>
+          </div>
+          <span>🔥</span>
+        </div>
+      </section>
+    </aside>
+  </div>
+</div>
