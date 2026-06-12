@@ -1,0 +1,124 @@
+<div class="profile-page">
+  <button type="button" class="back-btn" (click)="goBack()">
+    ← Back to Feed
+  </button>
+
+  <div class="profile-card" *ngIf="!isLoading && user">
+    <div
+      class="cover"
+      [style.backgroundImage]="user.coverImage ? 'url(' + user.coverImage + ')' : ''">
+    </div>
+
+    <div class="profile-info">
+      <button
+        type="button"
+        class="edit-profile-btn"
+        *ngIf="!isEditing"
+        (click)="startEdit()">
+        ✏️ Edit Profile
+      </button>
+
+      <div class="profile-letter">
+        {{ user.fullName?.charAt(0) || 'U' }}
+      </div>
+
+      <ng-container *ngIf="!isEditing; else editProfileForm">
+        <h1>{{ user.fullName }}</h1>
+        <p class="username">&#64;{{ user.userName }}</p>
+        <p class="bio">{{ user.bio || 'No bio yet.' }}</p>
+      </ng-container>
+
+      <ng-template #editProfileForm>
+        <form class="edit-form" (ngSubmit)="saveProfile()">
+          <label>
+            Full name
+            <input
+              type="text"
+              name="fullName"
+              [(ngModel)]="editModel.fullName"
+              placeholder="Enter your name"
+              maxlength="60" />
+          </label>
+
+          <label>
+            Bio
+            <textarea
+              name="bio"
+              [(ngModel)]="editModel.bio"
+              placeholder="Write something about yourself..."
+              maxlength="160"></textarea>
+          </label>
+
+          <p class="bio-counter">
+            {{ editModel.bio.length || 0 }}/160
+          </p>
+
+          <div class="edit-actions">
+            <button type="button" class="cancel-btn" (click)="cancelEdit()">
+              Cancel
+            </button>
+
+            <button type="submit" class="save-btn" [disabled]="isSaving || !editModel.fullName.trim()">
+              {{ isSaving ? 'Saving...' : 'Save Changes' }}
+            </button>
+          </div>
+
+          <p class="error-message" *ngIf="errorMessage">
+            {{ errorMessage }}
+          </p>
+        </form>
+      </ng-template>
+
+      <div class="stats">
+        <div>
+          <b>{{ user.posts?.length || 0 }}</b>
+          <span>Posts</span>
+        </div>
+
+        <div>
+          <b>{{ user.followersCount || 0 }}</b>
+          <span>Followers</span>
+        </div>
+
+        <div>
+          <b>{{ user.followingCount || 0 }}</b>
+          <span>Following</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="posts-section" *ngIf="user">
+    <h2>My Posts</h2>
+
+    <article class="post-card" *ngFor="let post of user.posts">
+      <div class="post-head">
+        <p>{{ post.content }}</p>
+
+        <div class="post-menu-wrapper">
+          <button
+            type="button"
+            class="post-menu"
+            (click)="togglePostMenu(post)">
+            ⋮
+          </button>
+
+          <ul class="post-dropdown" *ngIf="post.showMenu">
+            <li (click)="editPost(post)">✏️ Edit</li>
+            <li class="delete" (click)="deletePost(post)">🗑️ Delete</li>
+          </ul>
+        </div>
+      </div>
+
+      <img
+        *ngIf="post.imageUrl"
+        [src]="post.imageUrl"
+        alt="post image" />
+
+      <div class="post-meta">
+        <span>❤️ {{ post.likesCount }}</span>
+        <span>💬 {{ post.commentsCount }}</span>
+      </div>
+    </article>
+  </section>
+</div>
